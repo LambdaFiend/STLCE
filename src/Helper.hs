@@ -39,10 +39,8 @@ genIndex :: [Name] -> TermNode -> TermNode
 genIndex ctx t = TermNode fi $
   case tm of
     TmVar k l -> tm
-    TmVarRaw x ->
-      TmVar (length $ takeWhile (/= x) ctx) (length ctx)
-    TmAbs x ty t1 ->
-      TmAbs x ty (genIndex (x:ctx) t1)
+    TmVarRaw x -> TmVar (length $ takeWhile (/= x) ctx) (length ctx)
+    TmAbs x ty t1 -> TmAbs x ty (genIndex (x:ctx) t1)
     TmApp t1 t2 -> TmApp (genIndex' t1) (genIndex' t2)
     TmTrue -> tm
     TmFalse -> tm
