@@ -20,15 +20,16 @@ showTm ctx t = let tm = getTm t in
     TmIf t1 t2 t3 -> "(" ++ "if " ++ showTm' t1
       ++ " then " ++ showTm' t2
       ++ " else " ++ showTm' t3 ++ ")"
-    TmVar k l ->
-      if (l == length ctx)
+    TmVar k l -> let ctxLength = length ctx in
+      if (l == ctxLength)
         then getNameFromContext ctx k
-        else error "TmVar: bad context length"
+        else error $ tmVarErr l ctxLength
     TmAbs x ty t1 ->
       let x' = fixName ctx x
        in "(" ++ "λ" ++ x' ++ ":" ++ showType ty ++ "." ++ showTm ((x', ty):ctx) t1 ++ ")"
     TmApp t1 t2 -> "(" ++ showTm' t1 ++ " " ++ showTm' t2 ++ ")"
   where showTm' = showTm ctx
+        tmVarErr l ctxLength = "TmVar: bad context length: " ++ show l ++ "/=" ++ (show $ ctxLength)
 
 getNameFromContext :: Context -> Index -> Name
 getNameFromContext ctx ind | ind < length ctx = fst (ctx !! ind)

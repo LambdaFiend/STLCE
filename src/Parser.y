@@ -69,6 +69,7 @@ Type
   : tynat  { TyNat }
   | tybool { TyBool }
   | tyunit { TyUnit }
+  | "(" TypeArr ")" { $2 }
 
 Abst : "\\" var ":" TypeArr "." Term { TermNode (tokenPos $1) $ TmAbs ((\(VAR s) -> s) $ tokenDat $2) $4 $6 }
 
