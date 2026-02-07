@@ -64,10 +64,7 @@ subst :: Index -> Index -> TermNode -> TermNode -> UpdatedTmArrTm
 subst c j s t = let tm = getTm t; subst' = subst c j s in
   UpdatedTmArrTm $
   case tm of
-    TmVar k l ->
-      ( if k == j + c then shift' 0 c s else t
-      , subst'
-      )
+    TmVar k l -> (if k == j + c then shift' 0 c s else t, subst')
     TmAbs x ty t1 -> (t, subst (c + 1) j s)
     _ -> (t, subst')
 
