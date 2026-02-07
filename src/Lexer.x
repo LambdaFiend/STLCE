@@ -22,6 +22,7 @@ iszero           { \pos _ -> Token pos ISZERO }
 pred             { \pos _ -> Token pos PRED }
 unit             { \pos _ -> Token pos UNIT }
 \\               { \pos _ -> Token pos LAMBDA }
+"λ"              { \pos _ -> Token pos LAMBDA }
 "."              { \pos _ -> Token pos DOT }
 ":"              { \pos _ -> Token pos COLON }
 ";"              { \pos _ -> Token pos SEMI }

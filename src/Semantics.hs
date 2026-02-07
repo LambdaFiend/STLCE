@@ -27,6 +27,7 @@ shift c d t = TermNode fi $
     TmZero -> TmZero
     TmSucc t1 -> TmSucc $ shift' t1
     TmPred t1 -> TmPred $ shift' t1
+    TmUnit -> TmUnit
   where tm = getTm t
         fi = getFI t
         shift' = shift c d
@@ -44,6 +45,7 @@ subst j s t = TermNode fi $
     TmZero -> TmZero
     TmSucc t1 -> getTm $ subst' t1
     TmPred t1 -> getTm $ subst' t1
+    TmUnit -> TmUnit
   where tm = getTm t
         fi = getFI t
         subst' = subst j s
@@ -59,6 +61,7 @@ isVal t = let tm = getTm t in
     TmFalse -> True
     TmZero -> True
     TmSucc nv | isVal nv -> True
+    TmUnit -> True
     _ -> False
 
 eval1 :: TermNode -> TermNode
