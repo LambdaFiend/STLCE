@@ -77,7 +77,7 @@ genIndex ctx t = let tm = getTm t; fi = getFI t; genIndex' = genIndex ctx in
   UpdatedTmArrTm $
   case tm of
     TmVarRaw x ->
-      ( TermNode fi $ TmVar (length $ takeWhile (/= x) ctx) (length ctx), genIndex')
+      (TermNode fi $ TmVar (length $ takeWhile (/= x) ctx) (length ctx), genIndex')
     TmAbs x ty t1 -> (t, genIndex (x:ctx))
     _ -> (t, genIndex')
 
