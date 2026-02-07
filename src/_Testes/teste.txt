@@ -1,2 +1,3 @@
-(\x:Unit->Unit->Unit.\y:Unit.\z:Unit.xyz)(\x:Unit.\y:Unit.unit)unitunit
+(\m:(Nat->Nat)->Nat->Nat.\n:(Nat->Nat)->Nat->Nat.\f:Nat->Nat.\x:Nat.n f (m f x))  (\f:Nat->Nat.\x:Nat.f(fx)) (\f:Nat->Nat.\x:Nat.f(f(f(fx)))) (\x:Nat.succ x) (0)
+
 
