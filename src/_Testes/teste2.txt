@@ -2,4 +2,4 @@
   case c of
       <phys=x> -> x.a
     | <virt=y> -> y.2
-in (g (\x:Bool.x)) ((if iszero (pred 0) then unit else unit);<virt={a=0,succ 0}> as <phys:{a:Nat, Nat}, virt:{a:Nat, Nat}>)) as Nat
+in (g (\x:Bool.x)) ((if iszero (succ (pred 0)) then unit else unit);<virt={a=0,succ 0}> as <phys:{a:Nat, Nat}, virt:{a:Nat, Nat}>)) as Nat
