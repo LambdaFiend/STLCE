@@ -1,0 +1,5 @@
+(let g = \_:Bool->Bool.\c:<phys:{a:Nat, Nat}, virt:{a:Nat, Nat}>.
+  case c of
+      <phys=x> -> x.a
+    | <virt=y> -> y.2
+in (g (\x:Bool.x)) ((if iszero (pred 0) then unit else unit);<virt={a=0,succ 0}> as <phys:{a:Nat, Nat}, virt:{a:Nat, Nat}>)) as Nat
