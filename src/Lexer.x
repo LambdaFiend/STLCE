@@ -34,6 +34,8 @@ unit                   { \pos _ -> Token pos UNIT }
 ")"                    { \pos _ -> Token pos RPAREN }
 "{"                    { \pos _ -> Token pos LBRACK }
 "}"                    { \pos _ -> Token pos RBRACK }
+"["                    { \pos _ -> Token pos LSQUARE }
+"]"                    { \pos _ -> Token pos RSQUARE }
 "->"                   { \pos _ -> Token pos TYARR }
 "<"                    { \pos _ -> Token pos LANGLE }
 ">"                    { \pos _ -> Token pos RANGLE }
@@ -47,6 +49,12 @@ in                     { \pos _ -> Token pos IN }
 as                     { \pos _ -> Token pos AS }
 let                    { \pos _ -> Token pos LET }
 letrec                 { \pos _ -> Token pos LETREC }
+nil                    { \pos _ -> Token pos NIL }
+cons                   { \pos _ -> Token pos CONS }
+isnil                  { \pos _ -> Token pos ISNIL }
+head                   { \pos _ -> Token pos HEAD }
+tail                   { \pos _ -> Token pos TAIL }
+List                   { \pos _ -> Token pos TYLIST }
 Nat                    { \pos _ -> Token pos TYNAT }
 Bool                   { \pos _ -> Token pos TYBOOL }
 Unit                   { \pos _ -> Token pos TYUNIT }
@@ -81,6 +89,8 @@ data TokenData
   | RPAREN
   | LBRACK
   | RBRACK
+  | LSQUARE
+  | RSQUARE
   | LANGLE
   | RANGLE
   | UNDER
@@ -93,6 +103,12 @@ data TokenData
   | CASE
   | OF
   | FIX
+  | NIL
+  | CONS
+  | ISNIL
+  | HEAD
+  | TAIL
+  | TYLIST
   | TYARR
   | TYNAT
   | TYBOOL

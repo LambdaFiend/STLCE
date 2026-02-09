@@ -30,6 +30,11 @@ traverseDownTm f t = TermNode fi $
     TmVariant x t1 ty -> TmVariant x (traverseTm' t1) ty
     TmCase t1 ts -> TmCase (traverseTm'' t1) $ map (\(x, (y, z)) -> (x, (y, traverseTm' z))) ts
     TmFix t1 -> TmFix $ traverseTm' t1
+    TmNil ty -> tm
+    TmCons ty t1 t2 -> TmCons ty (traverseTm' t1) (traverseTm' t2)
+    TmIsNil ty t1 -> TmIsNil ty $ traverseTm' t1
+    TmHead ty t1 -> TmHead ty $ traverseTm' t1
+    TmTail ty t1 -> TmTail ty $ traverseTm' t1
   where tm = getTm t'
         fi = getFI t'
         traverseTm'  = traverseDownTm f'

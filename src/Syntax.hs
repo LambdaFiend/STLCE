@@ -34,6 +34,11 @@ data Term
   | TmVariant Name TermNode Type
   | TmCase TermNode [(Name, (Name, TermNode))]
   | TmFix TermNode
+  | TmNil Type
+  | TmCons Type TermNode TermNode
+  | TmIsNil Type TermNode
+  | TmHead Type TermNode
+  | TmTail Type TermNode
   deriving (Eq, Show)
 
 data Type
@@ -43,6 +48,7 @@ data Type
   | TyArr Type Type
   | TyRecord [(Name, Type)]
   | TyVariant [(Name, Type)]
+  | TyList Type
   deriving (Eq, Show)
 
 data Pattern

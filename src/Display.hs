@@ -46,6 +46,11 @@ showTm ctx t = let tm = getTm t in
       "(case " ++ showTm' t1 ++ " of \n"
       ++ "    " ++ (intercalate "\n  | " (map (\(x, (y, z)) -> "<" ++ x ++ ", " ++ y ++ "> -> " ++ showTm (y:ctx) z) ts)) ++ ")"
     TmFix t1 -> "(fix " ++ showTm' t1 ++ ")"
+    TmNil ty -> "nil[" ++ showType ty ++ "]"
+    TmCons ty t1 t2 -> "(cons[" ++ showType ty ++ "] " ++ showTm' t1 ++ " " ++ showTm' t2 ++ ")"
+    TmIsNil ty t1 -> "(isnil[" ++ showType ty ++ "] " ++ showTm' t1 ++ ")"
+    TmHead ty t1 -> "(head[" ++ showType ty ++ "] " ++ showTm' t1 ++ ")"
+    TmTail ty t1 -> "(tail[" ++ showType ty ++ "] " ++ showTm' t1 ++ ")"
   where showTm' = showTm ctx
         fixName' = fixName ctx
         tmVarErr l ctxLength = "TmVar: bad context length: " ++ show l ++ "/=" ++ show ctxLength
@@ -83,6 +88,7 @@ showType ty =
         $ map (\((x, y), k) -> (if (show k /= x) then x ++ " : " else "") ++ showType y)
         $ zip tys [1..])
       ++ ">"
+    TyList ty -> "(List " ++ showType ty ++ ")"
 
 showPattern :: [Name] -> Pattern -> String
 showPattern ctx p =

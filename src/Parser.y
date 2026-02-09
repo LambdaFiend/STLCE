@@ -28,6 +28,8 @@ unit       { Token pos UNIT }
 ")"        { Token pos RPAREN }
 "{"        { Token pos LBRACK }
 "}"        { Token pos RBRACK }
+"["        { Token pos LSQUARE }
+"]"        { Token pos RSQUARE }
 "<"        { Token pos LANGLE }
 ">"        { Token pos RANGLE }
 ","        { Token pos COMMA }
@@ -42,9 +44,15 @@ letrec     { Token pos LETREC }
 case       { Token pos CASE }
 of         { Token pos OF }
 fix        { Token pos FIX }
+nil        { Token pos NIL }
+cons       { Token pos CONS }
+isnil      { Token pos ISNIL }
+head       { Token pos HEAD }
+tail       { Token pos TAIL }
 tynat      { Token pos TYNAT }
 tybool     { Token pos TYBOOL }
 tyunit     { Token pos TYUNIT }
+tylist     { Token pos TYLIST }
 num        { Token pos (NUM n) }
 var        { Token pos (VAR s) }
 id         { Token pos (ID s) }
@@ -56,7 +64,7 @@ Term
   : IfTE      { $1 }
   | Abst      { $1 }
   | Let       { $1 }
-  | Letrec    { $1 }
+  | LetRec    { $1 }
   | ProjSeq   { $1 }
   | BeginCase { $1 }
 
@@ -85,10 +93,22 @@ Atom
   | Succ           { $1 }
   | Pred           { $1 }
   | IsZero         { $1 }
+  | Cons           { $1 }
+  | IsNil          { $1 }
+  | Head           { $1 }
+  | Tail           { $1 }
   | "(" Term ")"   { $2 }
   | "{" Record "}" { TermNode (tokenPos $1) $ TmRecord $2 }
   | Variant        { $1 }
   | Fix            { $1 }
+
+Cons : cons "[" TypeArr "]" Atom Atom { TermNode (tokenPos $1) $ TmCons $3 $5 $6 }
+
+IsNil : isnil "[" TypeArr "]" Atom { TermNode (tokenPos $1) $ TmIsNil $3 $5 }
+
+Head : head "[" TypeArr "]" Atom { TermNode (tokenPos $1) $ TmHead $3 $5 }
+
+Tail : tail "[" TypeArr "]" Atom { TermNode (tokenPos $1) $ TmTail $3 $5 }
 
 Fix : fix "(" Term ")" { TermNode (tokenPos $1) $ TmFix $3 }
 
@@ -102,11 +122,12 @@ Record
   | Term                     { [("", $1)] }
 
 Value
-  : true  { TermNode (tokenPos $1) TmTrue }
-  | false { TermNode (tokenPos $1) TmFalse }
-  | "0"   { TermNode (tokenPos $1) TmZero }
-  | unit  { TermNode (tokenPos $1) TmUnit }
-  | Name  { TermNode (fst $1) $ TmVarRaw (snd $1) }
+  : true                { TermNode (tokenPos $1) TmTrue }
+  | false               { TermNode (tokenPos $1) TmFalse }
+  | "0"                 { TermNode (tokenPos $1) TmZero }
+  | unit                { TermNode (tokenPos $1) TmUnit }
+  | nil "[" TypeArr "]" { TermNode (tokenPos $1) $ TmNil $3 }
+  | Name                { TermNode (fst $1) $ TmVarRaw (snd $1) }
 
 Name
   : Id  { $1 }
@@ -122,9 +143,12 @@ Type
   : tynat               { TyNat }
   | tybool              { TyBool }
   | tyunit              { TyUnit }
+  | TypeList            { $1 }
   | "(" TypeArr ")"     { $2 }
   | "{" TypeRecord "}"  { TyRecord $2 }
   | "<" TypeVariant ">" { TyVariant $2 }
+
+TypeList : tylist Type { TyList $2 }
 
 TypeVariant
   : TypeVariant "," Name ":" Type { $1 ++ [(snd $3, $5)] }
@@ -160,7 +184,7 @@ IfTE : if Term then Term else Term { TermNode (tokenPos $1) $ TmIf $2 $4 $6 }
 
 Let : let Pattern "=" Term in Term { TermNode (tokenPos $1) $ TmLet $2 $4 $6 }
 
-Letrec : letrec Name ":" TypeArr "=" Term in Term { TermNode (tokenPos $1) $ TmLet (PVar $ snd $2) (TermNode (tokenPos $1) $ TmFix (TermNode (tokenPos $1) $ TmAbs (snd $2) $4 $6)) $8 }
+LetRec : letrec Name ":" TypeArr "=" Term in Term { TermNode (tokenPos $1) $ TmLet (PVar $ snd $2) (TermNode (tokenPos $1) $ TmFix (TermNode (tokenPos $1) $ TmAbs (snd $2) $4 $6)) $8 }
 
 Succ : succ Atom { TermNode (tokenPos $1) $ TmSucc $2 }
 

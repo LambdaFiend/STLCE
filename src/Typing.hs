@@ -38,7 +38,7 @@ typeOf ctx t =
     TmProj t1 x -> let tyT1 = typeOf' t1 in
       case tyT1 of
         TyRecord tys -> fromMaybe $ lookup x tys
-        _ -> error "TmProj: tyT1 is not of the record kind"
+        _ -> error tmProjErr
     TmRecord ts -> TyRecord $ map (\(x, y) -> (x, typeOf' y)) ts
     TmVariant x t1 ty@(TyVariant ty1) ->
       let tyMatch = fromMaybe $ lookup x ty1
@@ -54,9 +54,16 @@ typeOf ctx t =
     TmFix t1 -> let tyT1 = typeOf' t1 in
       case tyT1 of
         TyArr ty1 ty2 | ty1 == ty2 -> ty1
-        _ -> error $ "TmFix: tyT1 is not of type form T->T, instead it's " ++ showType tyT1 
+        _ -> error $ tmFixErr tyT1
+    TmNil ty -> TyList ty
+    TmCons ty t1 t2 -> let tyT1 = typeOf' t1; tyT2 = typeOf' t2 in
+      if tyT1 == ty && tyT2 == TyList ty
+        then TyList ty
+        else error $ tmConsErr tyT1 tyT2 ty
+    TmIsNil ty t1 -> let tyT1 = typeOf' t1 in check3 tyT1 (TyList ty) TyBool $ tmIsNilErr tyT1 ty
+    TmHead ty t1 -> let tyT1 = typeOf' t1 in check3 tyT1 (TyList ty) ty $ tmHeadErr tyT1 ty
+    TmTail ty t1 -> let tyT1 = typeOf' t1 in check2 tyT1 (TyList ty) $ tmTailErr tyT1 ty
     _ -> error ("No rule applies: " ++ showFileInfo fi)
-
   where tm = getTm t
         fi = getFI t
         typeOf' = typeOf ctx
@@ -74,9 +81,15 @@ typeOf ctx t =
         tmIsZeroErr tyT1 = "TmIsZero: expected TyNat, but got " ++ showType tyT1 ++ showFileInfo fi
         tmAscribeErr tyT1 ty = "TmAscribe: expected " ++ showType ty ++ " but got " ++ showType tyT1 ++ showFileInfo fi
         tmSeqErr tyT1 = "TmSeq: expected TyUnit, but got " ++ showType tyT1 ++ showFileInfo fi
+        tmProjErr = "TmProj: tyT1 is not of the record kind"
         tmVariantErr tyT1 tyMatch = "TmVariant: type mismatch, where tyT1 is " ++ showType tyT1 ++ " and tyMatch is " ++ showType tyMatch ++ showFileInfo fi
         tmCaseErr1 tyT1 = "TmCase: expected tyT1 to be of the TyVariant kind, but got: " ++ showType tyT1
         tmCaseErr2 = "TmCase: not all match constructors match type!"
+        tmFixErr tyT1 = "TmFix: tyT1 is not of type form T->T, instead it's " ++ showType tyT1
+        tmConsErr tyT1 tyT2 ty = "TmCons: tyT1 not equal to ty or tyT2 not equal to TyList ty, tyT1 is " ++ showType tyT1 ++ ", tyT2 is " ++ showType tyT2 ++ "and ty is " ++ showType ty
+        tmIsNilErr tyT1 ty = "TmIsNil: tyT1 not equal to TyList ty, tyT1 is " ++ showType tyT1 ++ " and ty is " ++ showType ty
+        tmHeadErr tyT1 ty = "TmHead: tyT1 not equal to TyList ty, tyT1 is " ++ showType tyT1 ++ " and ty is " ++ showType ty
+        tmTailErr tyT1 ty = "TmTail: tyT1 not equal to TyList ty, tyT1 is " ++ showType tyT1 ++ " and ty is " ++ showType ty
 
 getTypeFromContext :: Context -> Index -> Type
 getTypeFromContext ctx ind | ind < length ctx = snd $ (ctx !! ind)
