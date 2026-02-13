@@ -1,0 +1,103 @@
+absInfer := \x.x
+
+comm := "absInferErr is supposed to be a type error,
+just like this one (comm) is supposed to be a parse error"
+
+absInferErr := \x.x x
+
+fakehalfturingcomb := \x.\y.x (y x x)
+
+halfturingcomb := \x.\y.y (x x y)
+
+infer1 := \x.\y.\z.\a.\b.\c.x y z a b c
+
+infer2 := x y z y x
+
+infer3 := \x.\y.x y (z y)
+
+infer4 := (\x.\y.x y) (\x.\z.z x x x)
+
+absCheck := \x:Nat.x
+
+suc := \x:Nat.succ x
+
+sucpred0 := succ (pred 0)
+
+not := \b:Bool.if b then false else true
+
+seq := (\x:Unit.x)unit;pred 0
+
+asc := (\f:Nat->Nat.\x:Nat.f(f x)) as (Nat -> Nat) -> Nat -> Nat
+
+sum2plus4 :=
+  (\m:(Nat->Nat)->Nat->Nat.\n:(Nat->Nat)->Nat->Nat.\f:Nat->Nat.\x:Nat.n f (m f x))
+    (\f:Nat->Nat.\x:Nat.f(f x))
+    (\f:Nat->Nat.\x:Nat.f(f(f(f x))))
+    (\x:Nat.succ x)
+    0
+
+sum :=
+  (\m:(Nat->Nat)->Nat->Nat.
+    \n:(Nat->Nat)->Nat->Nat.
+      \f:Nat->Nat.
+        \x:Nat.
+          n f (m f x))
+  as
+    ((Nat -> Nat) -> Nat -> Nat)
+      -> ((Nat -> Nat) -> Nat -> Nat)
+      -> (Nat -> Nat)
+      -> Nat
+      -> Nat
+
+testwild := \_:Nat.\x:Bool.x
+
+case_wildcard_variants :=
+  (let g = \_:Bool->Bool.\c:<phys:{a:Nat, Nat}, virt:{a:Nat, Nat}>.
+    case c of
+        <phys=x> -> x.a
+      | <virt=y> -> y.2
+  in (g (\x:Bool.x)) ((if iszero (succ (pred 0)) then unit else unit);<virt={a=0,succ 0}> as <phys:{a:Nat, Nat}, virt:{a:Nat, Nat}>)) as Nat
+
+pattern_matching := let {{first = x, first2 = a}, second = y, third = z} = {{first = 0, first2 = succ (succ (succ 0))}, second = succ 0, third = succ (succ 0)} in (if true then a else y) as Nat
+
+records := \x:{one:Nat, Nat}.x.2
+
+recordsApplied := (\x:{one:Nat, Nat}.x.one) {one = succ 0, succ (pred (succ (pred 0)))}
+
+iseven3 := (fix
+  (\h:Nat->Bool.
+    \x:Nat.
+      if iszero x
+        then true
+      else if iszero (pred x)
+        then false
+        else h (pred (pred x))) (succ (succ (succ 0))))
+
+iseven := fix
+  (\h:Nat->Bool.
+    \x:Nat.
+      if iszero x
+        then true
+      else if iszero (pred x)
+        then false
+        else h (pred (pred x)))
+
+head := \x:List Nat.head[Nat] x
+
+headApplied :=
+  (\x:List Nat.head[Nat] x) (cons[Nat] 0 (cons[Nat] (succ 0) nil[Nat]))
+
+simpleBoolList :=
+  if isnil[Unit] (cons[Unit] unit nil[Unit])
+    then \x:Unit.\y:Unit.x
+    else \x:Unit.\y:Unit.y
+
+sum2 :=
+  letrec p:Nat->Nat->Nat =
+    \m:Nat.
+      \n:Nat.
+        if iszero m
+          then n
+          else succ (p (pred m) n)
+  in
+    p (succ (succ 0)) (succ 0)
