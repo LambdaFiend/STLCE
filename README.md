@@ -7,10 +7,14 @@ The steps for setting up this project are as follows:
 
 ```cabal run```
 
-If any warning appears, fix it! If you need to install a missing dependency, it can be accomplished by using a command such like:
+If warnings appear, fix them! In case you're required to install a missing dependency, it can be accomplished by using a command such like:
 
 ```cabal install --lib <library_name>```
 
-It's very likely to be a missing dependency (the issue), so this should suffice.
+It's very likely to be a missing dependency - that is, the issue - so this should suffice.
 
 **You need cabal in order to use this, as you may have already noticed.**
+
+Once you're running the program, write :? and press enter. It should give you half the indications you need.
+
+As for the other half, I suggest taking a look at **Benjamin Pierce**'s "**Types and Programming Languages**" book, particularly the 11th chapter (which pertains to extensions).
