@@ -35,9 +35,9 @@ getHelp = (\s -> s ++ "\n") $ intercalate "\n" $
     : ":s <var_name>\n"
     : "[:desugar, :desug, :des and :d are for cases where one wants to evaluate/typecheck using the desugared version]\n"
     : ":d <var_name1> <var_name2>\n"
-    : "[Additionally, for command :var, :v, :assign and :a, a third argument may be added, "
-    : "which is meant to be either :eval, :ev, :e, :evaln, :evn and :en, in which case "
-    : "it evaluates from the current environment (given a <var_name2>) and then stores it into <var_name1>]\n"
+    : ("[Additionally, for command :var, :v, :assign and :a, a third argument may be added, "
+      ++ "which is meant to be either :eval, :ev, :e, :evaln, :evn and :en, in which case "
+      ++ "it evaluates from the current environment (given a <var_name2>) and then stores it into <var_name1>]\n")
     : ":v <var_name1> :ev <var_name2>\n"
     : ":v <var_name1> :evn <number_of_steps> <var_name2>\n"
     : "[It (the command :var, :v, :assign and :a) may also be used for reading a term from a file, with its path being specified at <file_name>]\n"
