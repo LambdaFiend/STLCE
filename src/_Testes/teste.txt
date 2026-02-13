@@ -1,3 +1,0 @@
-(\m:(Nat->Nat)->Nat->Nat.\n:(Nat->Nat)->Nat->Nat.\f:Nat->Nat.\x:Nat.n f (m f x))  (\f:Nat->Nat.\x:Nat.f(fx)) (\f:Nat->Nat.\x:Nat.f(f(f(fx)))) (\x:Nat.succ x) (0)
-
-
