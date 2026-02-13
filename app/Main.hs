@@ -53,7 +53,7 @@ getHelp = (\s -> s ++ "\n") $ intercalate "\n" $
     : "[:m, :mv and :move will store the contents of <var_name2> into <var_name1>]\n"
     : ":mv <var_name1> <var_name2>\n"
     : ":q and :quit close the REPL\n"
-    : ":q\n"
+    : ":q"
     : []
 
 main :: IO ()
