@@ -13,6 +13,7 @@ import Data.List
 import System.IO
 import System.Directory
 import Control.Exception
+import System.Console.ANSI
 
 type EnvVarName = String
 type Environment = [(EnvVarName, TermNode)]
@@ -40,8 +41,6 @@ getHelp = (\s -> s ++ "\n") $ intercalate "\n" $
       ++ "it evaluates from the current environment (given a <var_name2>) and then stores it into <var_name1>]\n")
     : ":v <var_name1> :ev <var_name2>\n"
     : ":v <var_name1> :evn <number_of_steps> <var_name2>\n"
-    : "[It (the command :var, :v, :assign and :a) may also be used for reading a term from a file, with its path being specified at <file_name>]\n"
-    : ":v <var_name> <file_path>\n"
     : "[:desugar, :desug, :des and :d desugar the term from <var_name1> and place it into <var_name2>]\n"
     : ":d <var_name1> <var_name2>\n"
     : "[:load and :l load terms from file at <file_path>, which are assigned inside the file as <var_name> := <expression>, and then loaded into the environment correspondingly]\n"
@@ -53,7 +52,15 @@ getHelp = (\s -> s ++ "\n") $ intercalate "\n" $
     : "[:m, :mv and :move will store the contents of <var_name2> into <var_name1>]\n"
     : ":mv <var_name1> <var_name2>\n"
     : ":q and :quit close the REPL\n"
-    : ":q"
+    : ":q\n"
+    : "[:te, :tenv and :testenv attempt to type all variables in the environment]\n"
+    : ":testenv\n"
+    : "[:ee, :eenv and :evalenv attempt to evaluate all variables in the environment]\n"
+    : ":evalenv\n"
+    : "[:c, :ce, :cenv, :clear and :clearenv clear the environment, which means there will be no variables accessible until new ones are added]\n"
+    : ":c\n"
+    : "[:de, :denv, :desenv, :desugenv and :desugarenv desugar all variables in the environment]\n"
+    : ":de"
     : []
 
 main :: IO ()
@@ -72,7 +79,29 @@ main' env comml = do
   putStrLn ""
   let commToks = (\comm -> case comm of (x:xs) -> map toLower x:xs; [] -> []) $ words command
   env' <- case (commToks) of
+    [denv] | elem denv [":desugarenv", ":desugenv", ":desenv", ":denv", ":de"] -> do
+      env' <- desugarEnvironment env
+      putStrLn "Environment desugared"
+      return env'
+    [cenv] | elem cenv [":clearenv", ":clear", ":cenv", ":ce", ":c"] -> do
+      putStrLn "Environment cleared"
+      return []
+    [tenv] | elem tenv [":te", ":tenv", ":typeenv"] -> do
+      errs <- typeEnvironment env
+      if errs /= [] then putStrLn "" else return ()
+      putStrLn $ intercalate "\n" errs
+      if errs /= [] then putStrLn "" else return ()
+      putStrLn $ "There was a total of " ++ show (length errs) ++ " type errors"
+      return env
+    [eenv] | elem eenv [":ee", ":eenv", ":evalenv"] -> do
+      errs <- evalEnvironment env
+      if errs /= [] then putStrLn "" else return ()
+      putStrLn $ intercalate "\n" errs
+      if errs /= [] then putStrLn "" else return ()
+      putStrLn $ "There was a total of " ++ show (length errs) ++ " evaluation errors"
+      return env
     [quit] | elem quit [":q", ":quit"] -> do
+      putStrLn "Leaving STLCE."
       return [("", TermNode noPos (TmErr "Quit."))]
     [move, name1, name2] | elem move [":move", ":mv", ":m"] -> do
       let x = lookup name2 env
@@ -80,8 +109,10 @@ main' env comml = do
         then do
           putStrLn "Variable not in scope"
           return env
-        else
-          return ((name1, fromMaybe x):env)
+        else do
+          let env' = deleteByFstEnv name1 env
+          putStrLn "Variable moved"
+          return ((name1, fromMaybe x):env')
     [vars] | elem vars [":v?", ":vars"] -> do
       putStrLn $ (intercalate "\n") $ (take 10) $ map fst env
       return env
@@ -89,10 +120,18 @@ main' env comml = do
       putStrLn $ (intercalate "\n") $ (drop (10 * (k' - 1))) $ (take (10 * k')) $ map fst env
       return env
     [load, file] | elem load [":load", ":l"]-> do
-      txt <- readFile ("programs/" ++ file)
-      let comms = simplyParseCommands' $ words txt
-      asts <- getMultipleASTsFromTerms comms
-      return $ asts ++ env
+      fileExists <- doesFileExist ("programs/" ++ file)
+      if fileExists
+        then do
+          txt <- readFile ("programs/" ++ file)
+          let comms = simplyParseCommands' $ words txt
+          putStrLn $ "Loaded a total of " ++ (show $ length comms) ++ " environment variables"
+          asts <- getMultipleASTsFromTerms comms
+          let env' = foldr deleteByFstEnv env (map fst asts)
+          return $ asts ++ env'
+        else do
+          putStrLn "Path leads to nowhere"
+          return env
     [desug, name1, name2] | elem desug [":desugar", ":desug", ":des", ":d"] -> do
       let x = lookup name2 env
       if x == Nothing
@@ -101,19 +140,18 @@ main' env comml = do
           return env
         else do
           desugaredTerm <- getDesugaredTerm $ fromMaybe x
-          return ((name1, desugaredTerm):env)
-    [var, name, file] | elem var [":var", ":v", ":assign", ":a"] -> do
-      txt <- getTxtFromFile ("programs/" ++ file)
-      term <- getTermFromAST txt
-      case term of
-        Left e -> return env
-        Right term' -> return ((name, term'):env)
+          let env' = deleteByFstEnv name1 env
+          putStrLn "Variable desugared"
+          return ((name1, desugaredTerm):env')
     [var, name] | elem var [":var", ":v", ":assign", ":a"] -> do
       txt <- getTxtFromInput
       term <- getTermFromAST txt
       case term of
         Left e -> return env
-        Right term' -> return ((name, term'):env)
+        Right term' -> do
+          let env' = deleteByFstEnv name env
+          putStrLn "Variable assigned"
+          return ((name, term'):env')
     [ty, name] | elem ty [":type", ":ty", ":t"] -> do
       let x = lookup name env
       if x == Nothing
@@ -164,7 +202,8 @@ main' env comml = do
             else do
               let term = fromMaybe x
               term' <- printEval term
-              return ((name1, term'):env)
+              let env' = deleteByFstEnv name1 env
+              return ((name1, term'):env')
     [var, name1, ev, k, name2]
       | and (map isDigit k)
         && elem var [":var", ":v", ":assign", ":a"]
@@ -177,7 +216,8 @@ main' env comml = do
             else do
               let term = fromMaybe x
               term' <- printEvalN (read k) term
-              return ((name1, term'):env)
+              let env' = deleteByFstEnv name1 env
+              return ((name1, term'):env')
     [] -> return env
     _ -> do
       putStrLn "Wrong command"
@@ -189,6 +229,55 @@ main' env comml = do
       appendFile "command_history.txt" (command ++ "\n")
       main' env' comml'
 
+desugarEnvironment :: Environment -> IO Environment
+desugarEnvironment [] = return []
+desugarEnvironment (e:env) = do
+  desugaredTerm <- getDesugaredTerm $ snd e
+  desugaredEnvironment <- desugarEnvironment env
+  return ((fst e, desugaredTerm):desugaredEnvironment)
+
+deleteByFstEnv :: String -> Environment -> Environment
+deleteByFstEnv x xs =
+  case break (\(x', _) -> x == x') xs of
+    (prev, _:next) -> prev ++ next
+    _              -> xs
+
+typeEnvironment :: Environment -> IO [String]
+typeEnvironment [] = return []
+typeEnvironment (e:env) = do
+  setSGR [SetColor Foreground Vivid Green]
+  putStrLn $ fst e ++ ":"
+  setSGR [Reset]
+  first <- printType $ snd e
+  case first of
+    Left _ -> do
+      setSGR [SetColor Foreground Vivid Red]
+      putStrLn "^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+      setSGR [Reset]
+      rest <- typeEnvironment env
+      return ((fst e ++ " had a type error"):rest)
+    Right _ -> do
+      rest <- typeEnvironment env
+      return rest
+
+evalEnvironment :: Environment -> IO [String]
+evalEnvironment [] = return []
+evalEnvironment (e:env) = do
+  setSGR [SetColor Foreground Vivid Green]
+  putStrLn $ fst e ++ ":"
+  setSGR [Reset]
+  first <- printEval $ snd e
+  case first of
+    TermNode noPos (TmErr "") -> do
+      setSGR [SetColor Foreground Vivid Red]
+      putStrLn "^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+      setSGR [Reset]
+      rest <- evalEnvironment env
+      return ((fst e ++ " had an evaluation error"):rest)
+    _ -> do
+      rest <- evalEnvironment env
+      return rest
+
 simplyParseCommands' :: [String] -> [(String, String)]
 simplyParseCommands' s = map (\(x, y) -> (x, intercalate " " y)) $ simplyParseCommands s
 
@@ -199,6 +288,7 @@ simplyParseCommands (name:":=":xs) = let expr = getExpression xs in (name, fst e
         getExpression [] = ([], [])
         getExpression s@(name:":=":xs) = ([], s)
         getExpression (x:xs) = let next = getExpression xs in (x:(fst next), snd next)
+simplyParseCommands xs = []
 
 handleCommHistFile :: FilePath -> IO String
 handleCommHistFile file = do
@@ -494,29 +584,37 @@ printEvalN n ast = do
             return $ snd ast'
   return $ ast'
 
-printType :: TermNode -> IO ()
+printType :: TermNode -> IO (Either String String)
 printType ast = do
   let typingMethod = getTypingMethod ast
   case typingMethod of
-    TypingError e -> putStrLn e
+    TypingError e -> do
+      putStrLn e
+      return $ Left ""
     Check -> do
       let ty = typeOf' ast
           errs = findTypeErrors' ty
       if errs /= []
-        then putStrLn errs
+        then do
+          putStrLn errs
+          return $ Left ""
         else do
           putStrLn "The term's type was checked"
           putStrLn "Its type:"
           putStrLn $ showType' ty
+          return $ Right ""
     _ -> do
       case inferT' ast of
-        Left e -> putStrLn e
+        Left e -> do
+          putStrLn e
+          return $ Left ""
         Right ty -> do
           putStrLn "The term's type was inferred"
           putStrLn "The required context:"
           putStrLn $ show $ map (\(x, y) -> (x, showType y)) $ fst ty
           putStrLn "Its principal type:"
           putStrLn $ showType $ snd ty
+          return $ Right ""
 
 printTerm :: TermNode -> IO ()
 printTerm t = do
