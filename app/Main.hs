@@ -89,7 +89,7 @@ main' env comml = do
       putStrLn $ (intercalate "\n") $ (drop (10 * (k' - 1))) $ (take (10 * k')) $ map fst env
       return env
     [load, file] | elem load [":load", ":l"]-> do
-      txt <- readFile file
+      txt <- readFile ("programs/" ++ file)
       let comms = simplyParseCommands' $ words txt
       asts <- getMultipleASTsFromTerms comms
       return $ asts ++ env
@@ -103,7 +103,7 @@ main' env comml = do
           desugaredTerm <- getDesugaredTerm $ fromMaybe x
           return ((name1, desugaredTerm):env)
     [var, name, file] | elem var [":var", ":v", ":assign", ":a"] -> do
-      txt <- getTxtFromFile file
+      txt <- getTxtFromFile ("programs/" ++ file)
       term <- getTermFromAST txt
       case term of
         Left e -> return env
