@@ -8,7 +8,7 @@ The steps for setting up this project are as follows:
 
 ```cabal run```
 
-If warnings appear, fix them! In case you're required to install a missing dependency, it can be accomplished by using a command such like:
+If warnings appear, fix them! In case you're required to install a missing dependency, it can be accomplished by using a command like:
 
 ```cabal install --lib <library_name>```
 
