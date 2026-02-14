@@ -209,11 +209,11 @@ findTermErrors t = let tm = getTm t in
     TmHead _ t1 -> findTermErrors t1
     TmTail _ t1 -> findTermErrors t1
 
-findDisplayErrors' :: String -> String
+findDisplayErrors' :: String -> Either String String
 findDisplayErrors' s =
   case findDisplayErrors s [] of
-    [] -> s
-    s' -> intercalate "\n" s'
+    [] -> Right s
+    s' -> Left $ intercalate "\n" s'
 
 findDisplayErrors :: String -> String -> [String]
 findDisplayErrors [] [] = []
