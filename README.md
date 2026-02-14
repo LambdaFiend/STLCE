@@ -24,6 +24,6 @@ As for the other half, I suggest taking a look at **Benjamin Pierce's "Types and
 
 | Construct | Meaning |
 |:---------:|:-------:|
-| stuff | here |
+| stuffaaaaaaaaaaaaaaaaaaaaaaaaa | here |
 
 ## Commands
