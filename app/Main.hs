@@ -61,8 +61,10 @@ getHelp = (\s -> s ++ "\n") $ intercalate "\n" $
     : ":c\n"
     : "[:de, :denv, :desenv, :desugenv and :desugarenv desugar all variables in the environment]\n"
     : ":de\n"
-    : "[:av?, :allvars, :showenv and :se show all variables in the environment]\n"
-    : ":av?"
+    : "[:av? and :allvars show all variables in the environment]\n"
+    : ":av?\n"
+    : "[:showenv, :showe, :senv and :se]\n"
+    : ":se"
     : []
 
 main :: IO ()
@@ -82,6 +84,56 @@ main' env comml = do
   let commToks = (\comm -> case comm of (x:xs) -> map toLower x:xs; [] -> []) $ words command
   env' <- case (commToks) of
     [] -> return env
+    [tenv, k] | and (map isDigit k) && elem tenv [":te", ":tenv", ":typeenv"] -> do
+      let k' = read k
+          env' = drop ((k' - 1) * 10) $ take (k' * 10) env
+      errs <- typeEnvironment env'
+      if errs /= [] then putStrLn "" else return ()
+      putStrLn $ intercalate "\n" errs
+      if errs /= [] then putStrLn "" else return ()
+      putStr $ "There was a total of "
+      setSGR [SetColor Foreground Vivid Red]
+      putStr $ show (length errs)
+      setSGR [Reset]
+      putStrLn $ " type errors " ++ "on page " ++ k
+      return env
+    [eenv, k] | and (map isDigit k) && elem eenv [":ee", ":eenv", ":evalenv"] -> do
+      let k' = read k
+          env' = drop ((k' - 1) * 10) $ take (k' * 10) env
+      errs <- evalEnvironment env'
+      if errs /= [] then putStrLn "" else return ()
+      putStrLn $ intercalate "\n" errs
+      if errs /= [] then putStrLn "" else return ()
+      putStr $ "There was a total of "
+      setSGR [SetColor Foreground Vivid Red]
+      putStr $ show (length errs)
+      setSGR [Reset]
+      putStrLn $ " evaluation errors " ++ "on page " ++ k
+      return env
+    [senv, k] | and (map isDigit k) && elem senv [":showenv", ":showe", ":senv", ":se"] -> do
+      let k' = read k
+          env' = drop ((k' - 1) * 10) $ take (k' * 10) env
+      errs <- showEnvironment env'
+      if errs /= [] then putStrLn "" else return ()
+      putStrLn $ intercalate "\n" errs
+      if errs /= [] then putStrLn "" else return ()
+      putStr $ "There was a total of "
+      setSGR [SetColor Foreground Vivid Red]
+      putStr $ show (length errs)
+      setSGR [Reset]
+      putStrLn $ " display errors " ++ "on page " ++ k
+      return env
+    [senv] | elem senv [":showenv", ":showe", ":senv", ":se"] -> do
+      errs <- showEnvironment env
+      if errs /= [] then putStrLn "" else return ()
+      putStrLn $ intercalate "\n" errs
+      if errs /= [] then putStrLn "" else return ()
+      putStr $ "There was a total of "
+      setSGR [SetColor Foreground Vivid Red]
+      putStr $ show (length errs)
+      setSGR [Reset]
+      putStrLn " display errors in the environment"
+      return env
     [denv] | elem denv [":desugarenv", ":desugenv", ":desenv", ":denv", ":de"] -> do
       env' <- desugarEnvironment env
       setSGR [SetColor Foreground Vivid Green]
@@ -98,18 +150,22 @@ main' env comml = do
       if errs /= [] then putStrLn "" else return ()
       putStrLn $ intercalate "\n" errs
       if errs /= [] then putStrLn "" else return ()
+      putStr $ "There was a total of "
       setSGR [SetColor Foreground Vivid Red]
-      putStrLn $ "There was a total of " ++ show (length errs) ++ " type errors"
+      putStr $ show (length errs)
       setSGR [Reset]
+      putStrLn " type errors in the environment"
       return env
     [eenv] | elem eenv [":ee", ":eenv", ":evalenv"] -> do
       errs <- evalEnvironment env
       if errs /= [] then putStrLn "" else return ()
       putStrLn $ intercalate "\n" errs
       if errs /= [] then putStrLn "" else return ()
+      putStr $ "There was a total of "
       setSGR [SetColor Foreground Vivid Red]
-      putStrLn $ "There was a total of " ++ show (length errs) ++ " evaluation errors"
+      putStr $ show (length errs)
       setSGR [Reset]
+      putStrLn " evaluation errors in the environment"
       return env
     [quit] | elem quit [":q", ":quit"] -> do
       setSGR [SetColor Foreground Vivid Yellow]
@@ -130,7 +186,7 @@ main' env comml = do
           putStrLn "Variable moved"
           setSGR [Reset]
           return ((name1, fromMaybe x):env')
-    [senv] | elem senv [":av?", ":allvars", ":showenv", ":se"] -> do
+    [avars] | elem avars [":av?", ":allvars"] -> do
       setSGR [SetColor Foreground Vivid Yellow]
       putStrLn $ "All variables in the environment are:"
       setSGR [Reset]
@@ -154,11 +210,11 @@ main' env comml = do
         then do
           txt <- readFile ("programs/" ++ file)
           let comms = simplyParseCommands' $ words txt
+          asts <- getMultipleASTsFromTerms comms
+          let env' = foldr deleteByFstEnv env (map fst asts)
           setSGR [SetColor Foreground Vivid Green]
           putStrLn $ "Loaded a total of " ++ (show $ length comms) ++ " environment variables"
           setSGR [Reset]
-          asts <- getMultipleASTsFromTerms comms
-          let env' = foldr deleteByFstEnv env (map fst asts)
           return $ asts ++ env'
         else do
           setSGR [SetColor Foreground Vivid Red]
@@ -296,6 +352,12 @@ main' env comml = do
       appendFile "command_history.txt" (command ++ "\n")
       main' env' comml'
 
+deleteByFstEnv :: String -> Environment -> Environment
+deleteByFstEnv x xs =
+  case break (\(x', _) -> x == x') xs of
+    (prev, _:next) -> prev ++ next
+    _              -> xs
+
 desugarEnvironment :: Environment -> IO Environment
 desugarEnvironment [] = return []
 desugarEnvironment (e:env) = do
@@ -303,11 +365,20 @@ desugarEnvironment (e:env) = do
   desugaredEnvironment <- desugarEnvironment env
   return ((fst e, desugaredTerm):desugaredEnvironment)
 
-deleteByFstEnv :: String -> Environment -> Environment
-deleteByFstEnv x xs =
-  case break (\(x', _) -> x == x') xs of
-    (prev, _:next) -> prev ++ next
-    _              -> xs
+showEnvironment :: Environment -> IO [String]
+showEnvironment [] = return []
+showEnvironment (e:env) = do
+  setSGR [SetColor Foreground Vivid Green]
+  putStrLn $ fst e ++ ":"
+  setSGR [Reset]
+  first <- printTerm $ snd e
+  case first of
+    Left _ -> do
+      rest <- showEnvironment env
+      return ((fst e ++ " had a display error"):rest)
+    Right _ -> do
+      rest <- showEnvironment env
+      return rest
 
 typeEnvironment :: Environment -> IO [String]
 typeEnvironment [] = return []
@@ -590,8 +661,9 @@ getTermFromAST txt = do
   ast <- getAST txt
   case ast of
     Left e -> do
-      
+      setSGR [SetColor Foreground Vivid Red]
       putStrLn e
+      setSGR [Reset]
       return $ Left ""
     Right ast' -> return $ Right $ genIndex' ast'
 
@@ -602,7 +674,7 @@ getMultipleASTsFromTerms (x:xs) = do
   next <- getMultipleASTsFromTerms xs
   case term of
     Left e -> do
-      putStr $ "for environment variable: "
+      putStr "for environment variable: "
       setSGR [SetColor Foreground Vivid Red]
       putStrLn $ fst x
       setSGR [Reset]
@@ -709,7 +781,7 @@ printType ast = do
           putStrLn $ showType $ snd ty
           return $ Right ""
 
-printTerm :: TermNode -> IO ()
+printTerm :: TermNode -> IO (Either String String)
 printTerm t = do
   let display = findDisplayErrors' $ showTm' t
   case display of
@@ -718,4 +790,7 @@ printTerm t = do
       setSGR [SetColor Foreground Vivid Red]
       putStrLn "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
       setSGR [Reset]
-    Right s -> putStrLn s
+      return $ Left ""
+    Right s -> do
+      putStrLn s
+      return $ Right ""
