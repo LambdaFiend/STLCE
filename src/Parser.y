@@ -133,7 +133,7 @@ Value
   | unit                { TermNode (tokenPos $1) TmUnit }
   | nil "[" TypeArr "]" { TermNode (tokenPos $1) $ TmNil $3 }
   | Name                { TermNode (fst $1) $ TmVarRaw (snd $1) }
-
+  | Num                 { convertNumToSuccs (snd $1) (fst $1) }
 
 Name : id { (tokenPos $1, (\(ID s) -> s) $ tokenDat $1) }
 
@@ -199,6 +199,10 @@ parseError :: [Token] -> Either String a
 parseError [] = Left ("Parsing error near the end of the file")
 parseError ((Token fi _):tokens) = Left ("Parsing error at:" ++ showFileInfoHappy fi)
 parseError (x:xs) = Left "Parsing error"
+
+convertNumToSuccs :: Int -> AlexPosn -> TermNode
+convertNumToSuccs 0 fi = TermNode fi TmZero
+convertNumToSuccs n fi = TermNode fi $ TmSucc (convertNumToSuccs (n - 1) fi)
 
 showFileInfoHappy :: AlexPosn -> String
 showFileInfoHappy (AlexPn p l c) =
