@@ -26,10 +26,10 @@ I'm going to show each construct and its meaning in a very informal manner.
 
 | Syntax                | Semantic        | Type      |
 |:---------------------:|:---------------|:---------|
-| true                  | **true**<br>value      | Bool |
-| false                 | **false**<br>value     | Bool |
+| true                  | **true**<br>a primitive value      | Bool |
+| false                 | **false**<br>a primitive value     | Bool |
 | if t1 then t2 else t3 | **if statement**<br>both possible outputs must be of the same type<br>and the condition has to be a boolean | Bool, where t1 has type Bool and T2 = T3, where type of t2 is T2 and type of t3 is T3 |
-| 0                     | **0**<br>value         | Nat  |
+| 0                     | **0**<br>a primitive value         | Nat  |
 | succ t                | **successor of a natural**<br>used on naturals<br>otherwise there will be an error | Nat<br>where t has type Nat |
 | pred t                | **predecessor of a natural**<br>used on naturals<br>otherwise there will be an error<br>using it on 0 converts itself into 0 | Nat<br>where t has type Nat |
 | iszero t              | **checks if t is 0**<br>if so then converts into true else false | Bool<br>where t has type Bool |
@@ -38,6 +38,7 @@ I'm going to show each construct and its meaning in a very informal manner.
 | \_:T.t                     | **wildcard**<br>just like an abstraction but the bound variable does not occur in t, so it may be omitted | T -> T'<br>where T' is the type of t |
 | \x.t                       | **lambda calculus abstraction without explicit typing**<br>its type will be inferred<br>which means t must include only this abs, app and var constructs | T->T'<br>where T is the inferred type variable of x<br>and T' the inferred type of t |
 | t1 t2                      | **lambda calculus application**<br>it requires a space in between<br>first t1 evaluates, then t2 and then the app is evaluated | T<br> where T comes from t1's type: T' -> T, and t2 must have type T' |
+| unit                       | **unit**<br>a primitive value | Unit |
 | t1;t2                      | **sequencing**<br>where t1 has to have type Unit<br>and it will be thrown away after evaluating | T, where T is the type of t2, and t1 must have type Unit |
 | t as T                     | **ascription**<br>where T is a type given by the programmer and t's type must match it | T, where T is the type of t |
 | let x = t1 in t2           | **let binding**<br>any occurrences of x in t2 are substituted by t1<br>but only after t1 is evaluated | T, where T is the type of t2 |
