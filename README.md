@@ -53,6 +53,9 @@ I'm going to show each construct and its meaning in a very informal manner.
 | **tail[T] t** | **gets the tail of a list of type T** | **List T**<br>where t has type T |
 | **isnil[T] t** | **checks if a list of type T is empty** | **Bool**<br>where t has type T |
 | **cons[T] t1 t2** | **a list of type T**<br>with t1 as the head and t2 as the tail | **List T**<br>where t1 has type T and t2 has type List T |
+
+Don't forget to check the ```programs/default_tests.txt``` file, as it contains exampless for all constructors of the language.
+
 ## Types
 
 There are two primitive types: Bool, Nat and Unit. Bool is for booleans, Nat is for natural numbers, starting from 0, and Unit is for unit (with not real application besides sequencing, here). Then there are type variables, which are only used for type inference; they are written as a "t" followed by some number starting from 1.
