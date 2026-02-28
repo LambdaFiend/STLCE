@@ -4,7 +4,7 @@
 **YALCI** is a Haskell implementation of **System F** with a variety of extensions, type checking and inference (**Algorithm T**, as of yet). Initially made as what's described but only for **STLC**, **Simply Typed Lambda Calculus**.
 
 ## Instructions
-The steps for setting YALCI up are as follows:
+The steps for setting **YALCI** up are as follows:
 
 ```cabal build```
 
@@ -14,7 +14,7 @@ If warnings show up, fix them! In case you're required to install a missing depe
 
 ```cabal install --lib <library_name>```
 
-The issue is very likely to be a missing dependency so this should suffice. Cabal usually fixes them by itself anyway.
+The issue is very likely to be a missing dependency so this should suffice. **Cabal** usually fixes them by itself anyway.
 
 **You need cabal and GHC in order to use YALCI, as you may have already noticed.**
 
