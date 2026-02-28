@@ -81,7 +81,7 @@ main = do
   hSetEcho stdin False
   comml <- handleCommHistFile "command_history.txt"
   evaluate (length comml)
-  putStrLn "Enter :? for help with the commands"
+  putStrLn "Enter :? for help with commands"
   main' [] $ reverse $ lines comml
 
 main' :: Environment -> CommandList -> IO ()
