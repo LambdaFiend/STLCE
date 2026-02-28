@@ -71,8 +71,8 @@ Nat                            { \pos _ -> Token pos TYNAT }
 Bool                           { \pos _ -> Token pos TYBOOL }
 Unit                           { \pos _ -> Token pos TYUNIT }
 $digit+                        { \pos s -> Token pos (NUM $ read s) }
-$aLower($alphNum|"_")*("\''")* { \pos s -> Token pos $ IDLOWER s }
-$aUpper($alphNum|"_")*("\''")* { \pos s -> Token pos $ IDUPPER s }
+$aLower($alphNum|"_")*(\')*    { \pos s -> Token pos $ IDLOWER s }
+$aUpper($alphNum|"_")*(\')*    { \pos s -> Token pos $ IDUPPER s }
 .                              { \pos s -> Token pos $ ERR ("Lexing error: " ++ s) }
 
 {
