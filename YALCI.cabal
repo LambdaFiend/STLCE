@@ -1,0 +1,61 @@
+cabal-version: 3.0
+name:          YALCI
+version:       0.2.0.0
+synopsis: System F with extensions, type checking and inference.
+
+description:
+  Church-style for checking, inference only for the least constructors required for T and W each.
+  The typing is automatically selected by YALCI.
+
+homepage: https://github.com/LambdaFiend/simply-typed-lambda-calculus-extended
+
+--license: GPL-3.0-or-later
+--license-file:       LICENSE
+
+author:     Gabriel Carlos
+maintainer: thelambdafiend@gmail.com
+
+--copyright:
+
+category:   Language
+build-type: Simple
+
+extra-doc-files:
+  CHANGELOG.md
+  README.md
+  programs/README.md
+
+extra-source-files: default_tests.txt
+
+common warnings
+  --ghc-options: 
+
+executable YALCI
+  import:         warnings
+  main-is:        Main.hs
+  hs-source-dirs: src
+
+  other-modules:
+    Display,
+    Helper,
+    Lexer,
+    Parser,
+    Semantics,
+    Syntax,
+    Typing
+
+  --other-extensions:
+
+  build-depends: 
+    base ^>=4.20.2.0,
+    array ^>=0.5.8.0,
+    directory ^>=1.3.10.1,
+    ansi-terminal ^>=1.1.5
+  hs-source-dirs:
+    app
+    src
+    programs
+
+  default-language: Haskell2010
+
+  --default-extensions:
