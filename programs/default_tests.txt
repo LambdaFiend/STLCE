@@ -215,3 +215,5 @@ pierceexistential1 := {*Nat, {c=0, f=lambda x:Nat. succ x}}
 pierceexistential2 := let {X,ops} = {*Nat, {c=0, f=lambda x:Nat. succ x}}
               as {Some X, {c:X, f:X->Nat}}
  in (ops.f ops.c)
+
+newexample := (\x:All X.(List X).x[Nat]) (\Y.nil[Y])
