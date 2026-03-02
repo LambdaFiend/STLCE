@@ -26,7 +26,7 @@ As for the other half, I suggest taking a look at **Benjamin Pierce's "Types and
 
 I'm going to show each construct and its meaning in a very informal manner.
 
-| Syntax                | Semantic        | Type      |
+| Syntax                | Semantics        | Type      |
 |:---------------------:|:---------------|:---------|
 | **true**                  | **true**<br>a primitive value      | **Bool** |
 | **false**                 | **false**<br>a primitive value     | **Bool** |
