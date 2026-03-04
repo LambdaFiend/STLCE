@@ -10,17 +10,17 @@ The steps for setting **YALCI** up are as follows:
 
 ```cabal run```
 
-If **warnings** show up, fix them! In case you're required to install a **missing dependency**, it can be accomplished by using a command such as:
+If warnings show up, fix them! In case you're required to install a missing dependency, it can be accomplished by using a command such as:
 
 ```cabal install --lib <library_name>```
 
-The issue is very likely to be a **missing dependency** so this should suffice. **Cabal** usually fixes them by itself anyway.
+The issue is very likely to be a missing dependency so this should suffice. **Cabal** usually fixes them by itself anyway.
 
 **You need cabal and GHC in order to use YALCI, as you may have already noticed.**
 
 Once you're running the program, write ```:?``` and press enter. It should give you about half the indications you need.
 
-As for the other half, I suggest taking a look at **Benjamin Pierce's "Types and Programming Languages" book**, most particularly its **11th section** (which pertains to **Extensions**) as well all the way through the **22st** and the **24th** (which pertain to **Polymorphism**, including **Type Reconstruction**, **System F** and **Existential Quantifiers**).
+As for the other half, I suggest taking a look at **Benjamin Pierce's "Types and Programming Languages" book**, most particularly its **11th section** (which pertains to Extensions) as well all the way through the **22st** and the **24th** (which pertain to Polymorphism, including Type Reconstruction, System F and Existential Quantifiers).
 
 ## Syntax and Semantics
 
@@ -62,21 +62,21 @@ I'm going to show each construct and its meaning in a very informal manner.
 
 Don't forget to take a look at the ```programs/default_tests.txt``` file, as it contains examples for all constructors of the language.
 
-Writing a number **n** is the same as writing succ(succ(...(0)...) (so, **n** succ's). The parser handles this. If the result of a program is in its entirety a number, then it will be pretty-printed as such, rather than the succession of succ's.
+Writing a number n is the same as writing succ(succ(...(0)...) (so, n succ's). The parser handles this. If the result of a program is in its entirety a number, then it will be pretty-printed as such, rather than the succession of succ's.
 
 You may write programs directly into the command line, as long as they neither follow nor are followed by anything else. Press enter and **YALCI** will echo its interpretation of the program, its type and its normal form (what it evaluates to, after being evaluated as much as possible).
 
-There are a couple of synonyms for the **Lambda Symbol**, the **Arrow Symbol**, the **Universal Quantifier Symbol** and the **Existential Quantifier Symbol**:
+There are a couple of synonyms for the Lambda Symbol, the Arrow Symbol, the Universal Quantifier Symbol and the Existential Quantifier Symbol:
   - **Lambda Symbol: \, λ, Λ, lambda;**
   - **Arrow Symbol: \-\>, →;**
   - **Universal Quantifier Symbol: All, forall, ∀;**
   - **Existential Quantifier Symbol: Some, forsome, ∃.**
 
-The existential types and packing/unpacking operations allow functional style **OOP** (**Object-Oriented Programming**) as well as the usage of **ADT's** (**Abstract Data Types**). Take a look at the **Existential Quantifiers** section (the **24th**) from **Pierce's** book in case you're curious as to how each of the two can be accomplished.
+The existential types and packing/unpacking operations allow functional style **OOP** (Object-Oriented Programming) as well as the usage of **ADT's** (Abstract Data Types). Take a look at the Existential Quantifiers section (the **24th**) from Pierce's book in case you're curious as to how each of the two can be accomplished.
 
 ## Types
 
-There are **three primitive types**: **Bool**, **Nat** and **Unit**. **Bool** is for **booleans**, **Nat** is for **natural numbers** and **Unit** is for **unit** (with no real application besides sequencing, as of now). Then there are **Type Variables**, which are only used for **Type Inference**; they are displayed as a "t" followed by some number starting from 1. Try writing the term \x.x in the command-line. Another form of type **Type Variables** is the one used by System F. Check the **Syntax and Semantics** table for more information.
+There are three primitive types: **Bool**, **Nat** and **Unit**. **Bool** is for **booleans**, **Nat** is for natural numbers and **Unit** is for units (with no real application besides sequencing, as of now). Then there are **Type Variables**, which are only used for Type Inference; they are displayed as a "t" followed by some number starting from 1. Try writing the term \x.x in the command-line. Another form of type **Type Variables** is the one used by System F. Check the **Syntax and Semantics** table for more information.
 
 {l1:T1, ..., ln:Tn} is related to the **Product Type**, more particularly it regards **records**.
 
@@ -94,11 +94,11 @@ X is the **Base Type**, which must begin with an uppercase letter and may contai
 
 ## Notes
 
-**Existentials** can be encoded within **System F** alone, but I didn't end up implementing the **desugaring** for that. I didn't feel like it was worth it, my time is better used elsewhere. **Pierce** talked about it in his 24th section (it has a rather hint-y designation), so you can see how it's done in there.
+**Existentials** can be encoded within System F alone, but I didn't end up implementing the desugaring for that. I didn't feel like it was worth it, my time is better used elsewhere. **Pierce** talked about it in his 24th section (it has a rather hint-y designation), so you can see how it's done in there.
 
-The interpreter uses, internally, **De Bruijn** representation of terms in order to facilitate shifting and substituting operations. **Alpha Conversion** can be assumed for apparently conflicting substitutions. When printing, if two bound names conflict, the innermost name will be given an extra prime until there are no more conflicts.
+The interpreter uses, internally, **De Bruijn** representation of terms in order to facilitate shifting and substituting operations. Alpha Conversion can be assumed for apparently conflicting substitutions. When printing, if two bound names conflict, the innermost name will be given an extra prime until there are no more conflicts.
 
-**Simply Typed Lambda Calculus** is rather well-known, but **System F** tends to stay in the shadows. **System F** is a far more expressive calculus, known as **Polymorphic Lambda Calculus**. The idea is that types can be quantified, not just terms. For a good reason, it corresponds to **Intuitionist Second Order Logic** via the **Curry-Howard Isomorphism**, and this **polymorphism** is known as **Impredicative Polymorphism**. Its inference has been shown to be undecideable for quite a while by **Wells \[1994\]**. In any case, it's used implicitly by various compilers, even the most modern ones - which goes to show how impactful **System F** has been to the world of **Programming Languages**.
+**Simply Typed Lambda Calculus** is rather well-known, but System F tends to stay in the shadows. System F is a far more expressive calculus, known as **Polymorphic Lambda Calculus**. The idea is that types can be quantified, not just terms. For a good reason, it corresponds to **Intuitionist Second Order Logic** via the **Curry-Howard Isomorphism**, and this polymorphism is known as **Impredicative Polymorphism**. Its inference has been shown to be undecideable for quite a while by **Wells \[1994\]**. In any case, it's used implicitly by various compilers, even the most modern ones - which goes to show how impactful **System F** has been to the world of **Programming Languages**.
 
 Regarding **Type Inference** or **Type Reconstruction**, **YALCI** includes both **Algorithm T** and **Algorithm W** (**Hindley-Milner-Damas** style). Unfortunately, these algorithms in **YALCI** only cover the least amount of constructors needed for their basic functioning:
   - **for T, variables, abstractions and applications**;
