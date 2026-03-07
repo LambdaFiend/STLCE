@@ -58,9 +58,9 @@ I'm going to show each construct and its meaning in a very informal manner.
 | **\X.t** | **type abstraction**<br>abstracts a type using a type variable<br>it's treated as a value | **∀X.T**<br>where t has type T<br>and X may occur in T |
 | **t\[T\]** | **type application**<br>allows the type T to replace<br>all occurrences of a certain variable within T<br>this targets type annotations | **\[X\-\>T\]T'**<br>where t1 has type ∀X.T' |
 | **\{\*T, t\} as \{∃X, T'\}** | **packs t**<br>this will allow its type to<br>be stay hidden and only be<br>compatible with terms from t | **\{∃X, T\}**<br>where T'' is the type of t<br>and T' = \[X\-\>T\] |
-| **let \{X, x\} = t1 in t2** | **Unpacks t1 into t2**<br>this allows t1 to be used withint t2<br>just as explained for the **pack** constructor | **T2**<br>where T2 is the type of t2<br>assuming the existence of X<br>and t1 must have type T1 = {∃X, T1'}<br>and, at last, assuming x has type T1' |
+| **let \{X, x\} = t1 in t2** | **Unpacks t1 into t2**<br>this allows t1 to be used withint t2<br>just as explained for the **pack** construct | **T2**<br>where T2 is the type of t2<br>assuming the existence of X<br>and t1 must have type T1 = {∃X, T1'}<br>and, at last, assuming x has type T1' |
 
-Don't forget to take a look at the ```programs/default_tests.txt``` file, as it contains examples for all constructors of the language.
+Don't forget to take a look at the ```programs/default_tests.txt``` file, as it contains examples for all constructs of the language.
 
 Writing a number n is the same as writing succ(succ(...(0)...) (so, n succ's). The parser handles this. If the result of a program is in its entirety a number, then it will be pretty-printed as such, rather than the succession of succ's.
 
@@ -100,7 +100,7 @@ The interpreter uses, internally, **De Bruijn** representation of terms in order
 
 **Simply Typed Lambda Calculus** is rather well-known, but System F tends to stay in the shadows. System F is a far more expressive calculus, known as **Polymorphic Lambda Calculus**. The idea is that types can be quantified, not just terms. For a good reason, it corresponds to **Intuitionist Second Order Logic** via the **Curry-Howard Isomorphism**, and this polymorphism is known as **Impredicative Polymorphism**. Its inference has been shown to be undecideable for quite a while by **Wells \[1994\]**. In any case, it's used implicitly by various compilers, even the most modern ones - which goes to show how impactful **System F** has been to the world of **Programming Languages**.
 
-Regarding **Type Inference** or **Type Reconstruction**, **YALCI** includes both **Algorithm T** and **Algorithm W** (**Hindley-Milner-Damas** style). Unfortunately, these algorithms in **YALCI** only cover the least amount of constructors needed for their basic functioning:
+Regarding **Type Inference** or **Type Reconstruction**, **YALCI** includes both **Algorithm T** and **Algorithm W** (**Hindley-Milner-Damas** style). Unfortunately, these algorithms in **YALCI** only cover the least amount of constructs needed for their basic functioning:
   - **for T, variables, abstractions and applications**;
   - **for W, variables, abstractions, applications and let-bindings**.
 
@@ -140,7 +140,7 @@ Most of the commands are simple and related in purpose. The table is dense becau
 ## To-do
 Add comments to the code.
 
-Possibly desugaring for existential-related constructors.
+Possibly desugaring for existential-related constructs.
 
 Maybe something else?
 
